@@ -1,0 +1,2 @@
+npm list
+npm view apollo-boost dependencies
