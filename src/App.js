@@ -43,10 +43,13 @@ const App = () => {
             if (loading) return `Loading...`
             if (error) return `Error! ${error.message}`
 
-            console.log({ data })
-
+            console.log(data.search)
+            const search = data.search
+            const repositoryCount = search.repositoryCount
+            const repositoryUnit = repositoryCount === 1 ? 'Reposotory' : 'Repositories'
+            const title = `Github Repositories Search Results - ${repositoryCount} ${repositoryUnit}`
             return (
-              <div>hoge</div>
+              <h3>{title}</h3>
             )
           }
         }
