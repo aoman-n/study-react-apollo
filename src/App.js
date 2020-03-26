@@ -49,7 +49,21 @@ const App = () => {
             const repositoryUnit = repositoryCount === 1 ? 'Reposotory' : 'Repositories'
             const title = `Github Repositories Search Results - ${repositoryCount} ${repositoryUnit}`
             return (
-              <h3>{title}</h3>
+              <>
+                <h3>{title}</h3>
+                <ul>
+                  {
+                    search.edges.map(edge => {
+                      const node = edge.node
+                      return (
+                        <li key={node.id}>
+                          <a target="_blank" rel="noopener noreferrer" href={node.url}>{node.name}</a>
+                        </li>
+                      )
+                    })
+                  }
+                </ul>
+              </>
             )
           }
         }
