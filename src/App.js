@@ -2,10 +2,11 @@ import React, { useState, useCallback } from 'react'
 import { ApolloProvider } from 'react-apollo'
 import { Query } from 'react-apollo'
 import client from './client'
-import { ME, SEARCH_REPOSITORIES } from './graphql'
+import { SEARCH_REPOSITORIES } from './graphql'
 
+const PER_PAGE = 5
 const DEFAULT_STATE = {
-  first: 5,
+  first: PER_PAGE,
   after: null,
   last: null,
 	before: null,
@@ -15,7 +16,6 @@ const DEFAULT_STATE = {
 const App = () => {
   const [state, setState] = useState(DEFAULT_STATE)
   const { query, first, last, before, after } = state
-  console.log({ query })
 
   const handleChange = useCallback(e => {
     setState({
@@ -27,6 +27,16 @@ const App = () => {
   const handleSubmit = e => {
     e.preventDefault()
   }
+
+  const goNext = useCallback(search => {
+    setState({
+      first: PER_PAGE,
+      after: search.pageInfo.endCursor,
+      before: null,
+      last: null,
+      query: "フロントエンドエンジニア"
+    })
+  }, [])
 
   return (
     <ApolloProvider client={client} >
@@ -43,7 +53,7 @@ const App = () => {
             if (loading) return `Loading...`
             if (error) return `Error! ${error.message}`
 
-            console.log(data.search)
+            console.log({ pageInfo: data.search.pageInfo })
             const search = data.search
             const repositoryCount = search.repositoryCount
             const repositoryUnit = repositoryCount === 1 ? 'Reposotory' : 'Repositories'
@@ -63,6 +73,11 @@ const App = () => {
                     })
                   }
                 </ul>
+                {
+                  search.pageInfo.hasNextPage ?
+                    <button onClick={() => goNext(search)}>Next</button> :
+                    null
+                }
               </>
             )
           }
