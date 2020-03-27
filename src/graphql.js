@@ -1,5 +1,16 @@
 import gql from 'graphql-tag'
 
+export const ADD_STAR = gql`
+  mutation ($input: AddStarInput!) {
+    addStar(input: $input) {
+      starrable {
+        id
+        viewerHasStarred
+      }
+    }
+  }
+`
+
 export const ME = gql`
   query me {
     user(login: "laster18") {
