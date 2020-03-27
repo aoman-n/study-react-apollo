@@ -7,8 +7,10 @@ import { SEARCH_REPOSITORIES } from './graphql'
 const StarCount = ({ node }) => {
   console.log({ node })
   const totalCount = node.stargazers.totalCount
+  const starCount = totalCount === 1 ? '1 star' : `${totalCount} stars`
+  const viewerHasStarred = node.viewerHasStarred
   return (
-    <button>{totalCount === 1 ? '1 star' : `${totalCount} stars`}</button>
+    <button>{starCount} | {viewerHasStarred ? 'starred' : '-'}</button>
   )
 }
 
