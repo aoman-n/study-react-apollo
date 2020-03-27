@@ -4,13 +4,37 @@ import client from './client'
 import { ADD_STAR, SEARCH_REPOSITORIES, REMOVE_STAR } from './graphql'
 
 const StarCount = ({ node, query, first, last, before, after }) => {
-  console.log({ node })
   const totalCount = node.stargazers.totalCount
   const starCount = totalCount === 1 ? '1 star' : `${totalCount} stars`
   const viewerHasStarred = node.viewerHasStarred
   const StarStatus = ({ addOrRemoveStar }) => {
     const handleClick = () => {
-      addOrRemoveStar({ variables: { input: { starrableId: node.id } } })
+      addOrRemoveStar({
+        variables: { input: { starrableId: node.id } },
+        update: (store, { data: { addStar, removeStar } }) => {
+          console.log({ addStar, removeStar })
+          const { starrable } = addStar || removeStar
+          const data = store.readQuery({
+            query: SEARCH_REPOSITORIES,
+            variables: { query, first, last, before, after }
+          })
+          const { edges } = data.search
+          const newEdges = edges.map(edge => {
+            if (edge.node.id === node.id) {
+              const totalCount = edge.node.stargazers.totalCount
+              const diff = starrable.viewerHasStarred ? 1 : -1
+              const newTotalCount = totalCount + diff
+              edge.node.stargazers.totalCount = newTotalCount
+            }
+            return edge
+          })
+          data.search.edges = newEdges
+          store.writeQuery({
+            query: SEARCH_REPOSITORIES,
+            data,
+          })
+        }
+      })
     }
 
     return (
@@ -23,16 +47,6 @@ const StarCount = ({ node, query, first, last, before, after }) => {
   return (
     <Mutation
       mutation={viewerHasStarred ? REMOVE_STAR : ADD_STAR}
-      refetchQueries={mutationResult => {
-        /* mutationの実行結果を受け取ってrefetchしたいときに使える */
-        console.log({ mutationResult })
-        return [
-          {
-            query: SEARCH_REPOSITORIES,
-            variables: { query, first, last, before, after }
-          }
-        ]
-      }}
     >
       {
         (addOrRemoveStar) => <StarStatus addOrRemoveStar={addOrRemoveStar} />
