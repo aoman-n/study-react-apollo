@@ -30,13 +30,23 @@ const App = () => {
 
   const goNext = useCallback(search => {
     setState({
+      ...state,
       first: PER_PAGE,
       after: search.pageInfo.endCursor,
       before: null,
       last: null,
-      query: "フロントエンドエンジニア"
     })
-  }, [])
+  }, [state])
+
+  const goPrevious = useCallback(search => {
+    setState({
+      ...state,
+      first: null,
+      after: null,
+      before: search.pageInfo.startCursor,
+      last: PER_PAGE,
+    })
+  }, [state])
 
   return (
     <ApolloProvider client={client} >
@@ -73,6 +83,11 @@ const App = () => {
                     })
                   }
                 </ul>
+                {
+                  search.pageInfo.hasPreviousPage ?
+                    <button onClick={() => goPrevious(search)}>Previous</button> :
+                    null
+                }
                 {
                   search.pageInfo.hasNextPage ?
                     <button onClick={() => goNext(search)}>Next</button> :
